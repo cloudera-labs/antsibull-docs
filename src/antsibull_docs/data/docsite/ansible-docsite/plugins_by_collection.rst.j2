@@ -22,16 +22,17 @@
 .. toctree::
     :maxdepth: 1
     :hidden:
+    :caption: @{ plugin_type.title() }@ APIs:
 
 {%     for name in plugin_maps[plugin_type] | sort %}
-    @{ name }@_@{ plugin_type }@
+    @{name}@ <@{ name }@_@{ plugin_type }@>
 {%     endfor %}
 {%   endif %}
 {% endmacro %}
 
 .. _plugins_in_@{collection_name}@:
 
-@{collection_name.title()}@
+@{collection_name}@
 @{ '=' * (collection_name | length) }@
 
 {% if collection_version %}
