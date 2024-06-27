@@ -9,7 +9,12 @@
 # to initialize the attributes when data is loaded into them.
 # pyre-ignore-all-errors[13]
 
-import pydantic as p
+from antsibull_docs._pydantic_compat import v1 as p
+
+
+class ChangelogConfig(p.BaseModel):
+    # Whether to write the changelog
+    write_changelog: bool = False
 
 
 class CollectionConfig(p.BaseModel):
@@ -20,3 +25,6 @@ class CollectionConfig(p.BaseModel):
     # List of environment variables that are defined by `.. envvar::` directives
     # in the extra docsite RST files.
     envvar_directives: list[str] = []
+
+    # Changelog configuration (added in version 2.10.0)
+    changelog: ChangelogConfig = ChangelogConfig()

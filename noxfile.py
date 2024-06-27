@@ -42,7 +42,7 @@ def other_antsibull(
     if mode is None:
         mode = DEFAULT_MODE
     to_install: list[str | Path] = []
-    args = ("antsibull-core", "antsibull-docs-parser")
+    args = ("antsibull-changelog", "antsibull-core", "antsibull-docs-parser")
     for project in args:
         path = Path("../", project)
         path_exists = path.is_dir()
@@ -69,7 +69,7 @@ def other_antsibull(
     return to_install
 
 
-@nox.session(python=["3.9", "3.10", "3.11"])
+@nox.session(python=["3.9", "3.10", "3.11", "3.12"])
 def test(session: nox.Session):
     install(
         session,
@@ -79,7 +79,7 @@ def test(session: nox.Session):
     )
     covfile = Path(session.create_tmp(), ".coverage")
     more_args = []
-    if session.python == "3.11":
+    if session.python in {"3.11", "3.12"}:
         more_args.append("--error-for-skips")
     session.run(
         "pytest",
@@ -147,35 +147,44 @@ def typing(session: nox.Session):
     install(session, "-e", ".[typing]", *others)
     session.run("mypy", "src/antsibull_docs", "src/sphinx_antsibull_ext")
 
-    additional_libraries = []
-    for path in others:
-        if isinstance(path, Path):
-            additional_libraries.extend(("--search-path", str(path / "src")))
+    # Disable pyre for now. It is incompatible with our _pydantic_compat module
+    # and spews type errors across the entire codebase.
+    if False:
+        additional_libraries = []
+        for path in others:
+            if isinstance(path, Path):
+                additional_libraries.extend(("--search-path", str(path / "src")))
 
-    purelib = session.run(
-        "python",
-        "-c",
-        "import sysconfig; print(sysconfig.get_path('purelib'))",
-        silent=True,
-    ).strip()
-    platlib = session.run(
-        "python",
-        "-c",
-        "import sysconfig; print(sysconfig.get_path('platlib'))",
-        silent=True,
-    ).strip()
-    session.run(
-        "pyre",
-        "--source-directory",
-        "src",
-        "--search-path",
-        purelib,
-        "--search-path",
-        platlib,
-        "--search-path",
-        "stubs/",
-        *additional_libraries,
-    )
+        purelib = (
+            session.run(
+                "python",
+                "-c",
+                "import sysconfig; print(sysconfig.get_path('purelib'))",
+                silent=True,
+            )
+            or ""
+        ).strip()
+        platlib = (
+            session.run(
+                "python",
+                "-c",
+                "import sysconfig; print(sysconfig.get_path('platlib'))",
+                silent=True,
+            )
+            or ""
+        ).strip()
+        session.run(
+            "pyre",
+            "--source-directory",
+            "src",
+            "--search-path",
+            purelib,
+            "--search-path",
+            platlib,
+            "--search-path",
+            "stubs/",
+            *additional_libraries,
+        )
 
 
 def check_no_modifications(session: nox.Session) -> None:
@@ -233,18 +242,21 @@ def bump(session: nox.Session):
                 f"Either {fragment_file} must already exist, "
                 "or two positional arguments must be provided."
             )
-    install(session, "antsibull-changelog", "hatch")
-    session.run("hatch", "version", version)
+    # Needs newer antsibull-changelog for hatch version auto-detection support
+    install(session, "antsibull-changelog[toml] >= 0.26.0", "hatch")
+    current_version = session.run("hatch", "version", silent=True).strip()
+    if version != current_version:
+        session.run("hatch", "version", version)
     if len(session.posargs) > 1:
         fragment = session.run(
             "python",
             "-c",
-            "import yaml ; "
-            f"print(yaml.dump(dict(release_summary={repr(session.posargs[1])})))",
+            "import sys, yaml ; "
+            f"yaml.dump(dict(release_summary={repr(session.posargs[1])}), sys.stdout)",
             silent=True,
         )
         with open(fragment_file, "w") as fp:
-            print(fragment, file=fp)
+            fp.write(fragment)
         session.run(
             "git",
             "add",
@@ -253,10 +265,11 @@ def bump(session: nox.Session):
             external=True,
         )
         session.run("git", "commit", "-m", f"Prepare {version}.", external=True)
-    session.run("antsibull-changelog", "release", "--version", version)
+    session.run("antsibull-changelog", "release")
     session.run(
         "git",
         "add",
+        "CHANGELOG.md",
         "CHANGELOG.rst",
         "changelogs/changelog.yaml",
         "changelogs/fragments/",
@@ -308,3 +321,9 @@ def install_env(session: nox.Session):
         external=True,
         editable=True,
     )
+
+
+@nox.session
+def mkdocs(session: nox.Session):
+    session.install("-r", "docs-requirements.txt")
+    session.run("mkdocs", *(session.posargs or ["build"]))

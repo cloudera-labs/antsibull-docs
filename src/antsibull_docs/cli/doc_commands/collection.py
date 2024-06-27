@@ -16,7 +16,7 @@ import tempfile
 import aiohttp
 import asyncio_pool  # type: ignore[import]
 from antsibull_core.collections import install_together
-from antsibull_core.galaxy import CollectionDownloader
+from antsibull_core.galaxy import CollectionDownloader, GalaxyContext
 from antsibull_core.logging import log
 from antsibull_core.venv import FakeVenvRunner
 
@@ -77,11 +77,12 @@ async def retrieve(
 
     lib_ctx = app_context.lib_ctx.get()
     async with aiohttp.ClientSession() as aio_session:
+        context = await GalaxyContext.create(aio_session, galaxy_server=galaxy_server)
         async with asyncio_pool.AioPool(size=lib_ctx.thread_max) as pool:
             downloader = CollectionDownloader(
                 aio_session,
                 collection_dir,
-                galaxy_server=galaxy_server,
+                context=context,
                 collection_cache=collection_cache,
             )
             for collection in collections:
@@ -117,6 +118,7 @@ def generate_docs() -> int:
     flog.debug("Begin processing docs")
 
     app_ctx = app_context.app_ctx.get()
+    lib_ctx = app_context.lib_ctx.get()
 
     squash_hierarchy: bool = app_ctx.extra["squash_hierarchy"]
     output_format = OutputFormat.parse(app_ctx.extra["output_format"])
@@ -136,8 +138,8 @@ def generate_docs() -> int:
                 app_ctx.extra["collections"],
                 collection_version,
                 tmp_dir,
-                galaxy_server=app_ctx.galaxy_url,
-                collection_cache=app_ctx.collection_cache,
+                galaxy_server=str(lib_ctx.galaxy_url),
+                collection_cache=lib_ctx.collection_cache,
             )
         )
         flog.fields(tarballs=collection_tarballs).debug("Download complete")

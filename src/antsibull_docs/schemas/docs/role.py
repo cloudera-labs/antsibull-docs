@@ -13,7 +13,7 @@
 import typing as t
 from collections.abc import Mapping
 
-import pydantic as p
+from antsibull_docs._pydantic_compat import v1 as p
 
 from .base import (
     COLLECTION_NAME_F,
@@ -23,10 +23,10 @@ from .base import (
     BaseModel,
     DeprecationSchema,
     OptionsSchema,
-    SeeAlsoLinkSchema,
-    SeeAlsoModSchema,
-    SeeAlsoRefSchema,
+    SeeAlsoSchemaT,
+    list_from_scalars,
 )
+from .plugin import PluginExamplesSchema
 
 _SENTINEL = object()
 
@@ -50,7 +50,7 @@ class RoleOptionsSchema(OptionsSchema):
     options: dict[str, "InnerRoleOptionsSchema"] = {}
 
 
-class RoleEntrypointSchema(BaseModel):
+class RoleEntrypointSchema(PluginExamplesSchema, BaseModel):
     """Documentation for role entrypoints."""
 
     description: list[str]
@@ -59,7 +59,7 @@ class RoleEntrypointSchema(BaseModel):
     deprecated: DeprecationSchema = p.Field({})
     notes: list[str] = []
     requirements: list[str] = []
-    seealso: list[t.Union[SeeAlsoModSchema, SeeAlsoRefSchema, SeeAlsoLinkSchema]] = []
+    seealso: list[SeeAlsoSchemaT] = []
     todo: list[str] = []
     version_added: str = "historical"
     attributes: dict[
@@ -68,6 +68,16 @@ class RoleEntrypointSchema(BaseModel):
     ] = {}
 
     options: dict[str, RoleOptionsSchema] = {}
+
+    @p.validator(
+        "author",
+        "description",
+        "todo",
+        pre=True,
+    )
+    # pylint:disable=no-self-argument
+    def list_from_scalars(cls, obj):
+        return list_from_scalars(obj)
 
 
 class RoleSchema(BaseModel):

@@ -8,7 +8,10 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 import textwrap
+import typing as t
+from collections.abc import MutableMapping
 
 from antsibull_core.logging import log
 from antsibull_core.venv import FakeVenvRunner, VenvRunner
@@ -16,6 +19,7 @@ from antsibull_core.venv import FakeVenvRunner, VenvRunner
 from ... import app_context
 from ...augment_docs import augment_docs
 from ...collection_links import load_collections_links
+from ...docs_parsing import AnsibleCollectionMetadata
 from ...docs_parsing.parsing import get_ansible_plugin_info
 from ...docs_parsing.routing import (
     find_stubs,
@@ -36,7 +40,12 @@ from ...process_docs import (
     get_plugin_contents,
     normalize_all_plugin_info,
 )
+from ...schemas.app_context import (
+    DEFAULT_COLLECTION_INSTALL_CMD,
+    DEFAULT_COLLECTION_URL_TRANSFORM,
+)
 from ...utils.collection_name_transformer import CollectionNameTransformer
+from ...write_docs.changelog import output_changelogs
 from ...write_docs.collections import output_extra_docs, output_indexes
 from ...write_docs.hierarchy import (
     output_collection_index,
@@ -53,6 +62,55 @@ from ...write_docs.plugins import output_all_plugin_rst
 mlog = log.fields(mod=__name__)
 
 
+def _remove_collections_from_mapping(
+    mapping: MutableMapping[str, t.Any],
+    exclude_collection_names: list[str],
+) -> None:
+    for collection_name in exclude_collection_names:
+        mapping.pop(collection_name, None)
+
+
+def _remove_collections(
+    plugin_info: MutableMapping[str, MutableMapping[str, t.Any]],
+    collection_metadata: MutableMapping[str, AnsibleCollectionMetadata],
+    exclude_collection_names: list[str],
+) -> None:
+    if not exclude_collection_names:
+        return
+
+    _remove_collections_from_mapping(collection_metadata, exclude_collection_names)
+
+    prefixes = tuple(
+        f"{collection_name}." for collection_name in exclude_collection_names
+    )
+    for _, plugin_data in plugin_info.items():
+        plugins_to_remove = [
+            plugin_name
+            for plugin_name in plugin_data
+            if plugin_name.startswith(prefixes)
+        ]
+        for plugin_name in plugins_to_remove:
+            del plugin_data[plugin_name]
+
+
+def _validate_options(
+    collection_names: list[str] | None,
+    exclude_collection_names: list[str] | None,
+    use_html_blobs: bool,
+) -> None:
+    if collection_names is not None and exclude_collection_names is not None:
+        raise ValueError(
+            "Cannot specify both collection_names and exclude_collection_names"
+        )
+
+    if use_html_blobs:
+        print(
+            "WARNING: the use of --use-html-blobs is deprecated."
+            " This feature will be removed soon.",
+            file=sys.stderr,
+        )
+
+
 def generate_docs_for_all_collections(  # noqa: C901
     venv: VenvRunner | FakeVenvRunner,
     collection_dir: str | None,
@@ -60,6 +118,7 @@ def generate_docs_for_all_collections(  # noqa: C901
     output_format: OutputFormat,
     *,
     collection_names: list[str] | None = None,
+    exclude_collection_names: list[str] | None = None,
     create_indexes: bool = True,
     create_collection_indexes: bool = True,
     add_extra_docs: bool = True,
@@ -82,9 +141,12 @@ def generate_docs_for_all_collections(  # noqa: C901
     :arg output_format: The output format.
     :kwarg collection_names: Optional list of collection names. If specified, only documentation
                              for these collections will be collected and generated.
+    :kwarg exclude_collection_names: Optional list of collection names to skip. Mutually exclusive
+                                     with ``collection_names``.
     :kwarg create_indexes: Whether to create the collection, namespace, and plugin indexes. By
                            default, they are created.
-    :kwarg create_collection_indexes: Whether to create the per-collection plugin index.
+    :kwarg create_collection_indexes: Whether to create the per-collection plugin index and other
+                                      global docs.
     :kwarg add_extra_docs: Whether to add extra docs.
     :kwarg add_redirect_stubs: Whether to create redirect stub files.
     :kwarg squash_hierarchy: If set to ``True``, no directory hierarchy will be used.
@@ -106,6 +168,14 @@ def generate_docs_for_all_collections(  # noqa: C901
     flog = mlog.fields(func="generate_docs_for_all_collections")
     flog.notice("Begin")
 
+    _validate_options(collection_names, exclude_collection_names, use_html_blobs)
+
+    if collection_names is not None and all(
+        ab not in collection_names
+        for ab in ("ansible.builtin", "ansible.*", "*.builtin", "*.*")
+    ):
+        exclude_collection_names = ["ansible.builtin"]
+
     app_ctx = app_context.app_ctx.get()
 
     # Get the info from the plugins
@@ -118,8 +188,9 @@ def generate_docs_for_all_collections(  # noqa: C901
     #     collection_metadata=full_collection_metadata).debug('Collection metadata')
 
     collection_metadata = dict(full_collection_metadata)
-    if collection_names is not None and "ansible.builtin" not in collection_names:
-        del collection_metadata["ansible.builtin"]
+    _remove_collections(
+        plugin_info, collection_metadata, exclude_collection_names or []
+    )
 
     # Load collection routing information
     collection_routing = asyncio.run(load_all_collection_routing(collection_metadata))
@@ -128,8 +199,7 @@ def generate_docs_for_all_collections(  # noqa: C901
 
     remove_redirect_duplicates(plugin_info, collection_routing)
     stubs_info = find_stubs(plugin_info, collection_routing)
-    if collection_names is not None and "ansible.builtin" not in collection_names:
-        stubs_info.pop("ansible.builtin", None)
+    _remove_collections_from_mapping(stubs_info, exclude_collection_names or [])
     # flog.fields(stubs_info=stubs_info).debug('Stubs info')
 
     new_plugin_info, nonfatal_errors = asyncio.run(
@@ -186,11 +256,11 @@ def generate_docs_for_all_collections(  # noqa: C901
     collection_namespaces = get_collection_namespaces(collection_to_plugin_info.keys())
 
     collection_url = CollectionNameTransformer(
-        app_ctx.collection_url, "https://galaxy.ansible.com/{namespace}/{name}"
+        app_ctx.collection_url, DEFAULT_COLLECTION_URL_TRANSFORM
     )
     collection_install = CollectionNameTransformer(
         app_ctx.collection_install,
-        "ansible-galaxy collection install {namespace}.{name}",
+        DEFAULT_COLLECTION_INSTALL_CMD,
     )
 
     filename_generator = FilenameGenerator(
@@ -272,6 +342,17 @@ def generate_docs_for_all_collections(  # noqa: C901
                 breadcrumbs=breadcrumbs,
                 for_official_docsite=for_official_docsite,
                 referable_envvars=referable_envvars,
+            )
+        )
+        flog.notice("Finished writing indexes")
+
+        asyncio.run(
+            output_changelogs(
+                collection_to_plugin_info,
+                dest_dir,
+                collection_metadata=collection_metadata,
+                squash_hierarchy=squash_hierarchy,
+                output_format=output_format,
             )
         )
         flog.notice("Finished writing indexes")

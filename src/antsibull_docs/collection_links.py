@@ -16,8 +16,8 @@ import asyncio_pool  # type: ignore[import]
 from antsibull_core import app_context
 from antsibull_core.logging import log
 from antsibull_core.yaml import load_yaml_file
-from pydantic import Extra
-from pydantic.error_wrappers import ValidationError, display_errors
+
+from antsibull_docs._pydantic_compat import v1
 
 from .schemas.collection_links import (
     CollectionEditOnGitHub,
@@ -131,7 +131,7 @@ def load(
         ld = {}
     try:
         result = CollectionLinks.parse_obj(ld)
-    except ValidationError:
+    except v1.ValidationError:
         result = CollectionLinks.parse_obj({})
 
     # Parse MANIFEST or galaxy data
@@ -229,6 +229,40 @@ async def load_collections_links(
     return result
 
 
+def _check_default_values(
+    parsed_data: CollectionLinks,
+    index_path: str,
+    result: list[tuple[str, int, int, str]],
+) -> None:
+    # Check for default values from https://github.com/ansible-collections/collection_template/
+    default_repo_url = "ansible-collections/community.REPO_NAME"
+    default_issue_url = (
+        "https://github.com/ansible-collections/community.REPO_NAME/issues/new/choose"
+    )
+    if (
+        parsed_data.edit_on_github
+        and parsed_data.edit_on_github.repository == default_repo_url
+    ):
+        result.append(
+            (
+                index_path,
+                0,
+                0,
+                f"edit_on_github.repository is {default_repo_url!r}, this must be adjusted!",
+            )
+        )
+    for idx, el in enumerate(parsed_data.extra_links):
+        if el.url == default_issue_url:
+            result.append(
+                (
+                    index_path,
+                    0,
+                    0,
+                    f"extra_links[{idx}].url is {default_issue_url!r}, this must be adjusted!",
+                )
+            )
+
+
 def lint_collection_links(collection_path: str) -> list[tuple[str, int, int, str]]:
     """Given a path, lint links data.
 
@@ -249,7 +283,7 @@ def lint_collection_links(collection_path: str) -> list[tuple[str, int, int, str
         Communication,
         CollectionLinks,
     ):
-        cls.__config__.extra = Extra.forbid  # type: ignore[attr-defined]
+        cls.__config__.extra = v1.Extra.forbid  # type: ignore[attr-defined]
 
     try:
         index_path = os.path.join(collection_path, "docs", "docsite", "links.yml")
@@ -263,11 +297,17 @@ def lint_collection_links(collection_path: str) -> list[tuple[str, int, int, str
                     (index_path, 0, 0, f"The key '{forbidden_key}' must not be used")
                 )
         try:
-            CollectionLinks.parse_obj(links_data)
-        except ValidationError as exc:
+            parsed_data = CollectionLinks.parse_obj(links_data)
+            _check_default_values(parsed_data, index_path, result)
+        except v1.ValidationError as exc:
             for error in exc.errors():
                 result.append(
-                    (index_path, 0, 0, display_errors([error]).replace("\n ", ":"))
+                    (
+                        index_path,
+                        0,
+                        0,
+                        v1.error_wrappers.display_errors([error]).replace("\n ", ":"),
+                    )
                 )
 
         return result

@@ -6,3 +6,6 @@
 envvar_directives:
   - FOOBAR1
   - FOOBAR2
+
+changelog:
+  write_changelog: true

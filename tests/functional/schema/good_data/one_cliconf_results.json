@@ -52,6 +52,7 @@
                         "version_added_collection": ""
                     }
                 },
+                "plugin_name": "",
                 "requirements": [],
                 "seealso": [],
                 "short_description": "Use eos cliconf to run command on Arista EOS platform",
@@ -59,6 +60,7 @@
                 "version_added": "historical",
                 "version_added_collection": ""
             },
+            "examples_format": "yaml",
             "examples": "",
             "metadata": {
                 "status": [

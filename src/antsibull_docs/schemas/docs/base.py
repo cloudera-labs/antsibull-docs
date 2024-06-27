@@ -125,9 +125,9 @@ import abc
 import typing as t
 from collections.abc import Mapping
 
-import pydantic as p
 from antsibull_core.yaml import load_yaml_bytes
 
+from antsibull_docs._pydantic_compat import v1 as p
 from antsibull_docs.vendored.ansible import (  # type: ignore[import]
     check_type_bits,
     check_type_bool,
@@ -319,19 +319,22 @@ def normalize_value(  # noqa: C901
     value = values[field]
     type_name = normalize_option_type_names(values["type"])
     type_checker = TYPE_CHECKERS.get(type_name)
-    if type_checker is None:
-        return
 
     elements_name = normalize_option_type_names(values.get("elements"))
     elements_checker = TYPE_CHECKERS.get(elements_name)
 
     descs = None
-    if not is_list_of_values:
-        value = [value]
-    elif accept_dict and isinstance(value, dict):
+    if accept_dict and isinstance(value, dict):
         descs = list(value.values())
         value = list(value)
+        type_name = elements_name
+        type_checker = elements_checker
+    elif not is_list_of_values:
+        value = [value]
     elif not isinstance(value, list):
+        return
+
+    if type_checker is None:
         return
 
     for i, v in enumerate(value):
@@ -349,10 +352,10 @@ def normalize_value(  # noqa: C901
                     raise ValueError(f'Invalid value {vv!r} for "{field}[{i}]": {exc}')
         value[i] = v
 
-    if not is_list_of_values:
-        value = value[0]
-    elif descs is not None:
+    if descs is not None:
         value = dict(zip(value, descs))
+    elif not is_list_of_values:
+        value = value[0]
 
     values[field] = value
 
@@ -477,7 +480,7 @@ class OptionsSchema(BaseModel):
     version_added: str = "historical"
     version_added_collection: str = COLLECTION_NAME_F
 
-    @p.validator("aliases", "description", "choices", pre=True)
+    @p.validator("aliases", "description", pre=True)
     # pylint:disable=no-self-argument
     def list_from_scalars(cls, obj):
         return list_from_scalars(obj)
@@ -619,6 +622,7 @@ class DocSchema(BaseModel):
     collection: str = REQUIRED_COLLECTION_NAME_OR_EMPTY_STR_F
     description: list[str]
     name: str
+    plugin_name: str = ""
     short_description: str
     aliases: list[str] = []
     author: list[str] = []

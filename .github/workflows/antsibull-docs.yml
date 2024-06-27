@@ -30,16 +30,19 @@ jobs:
           - '--use-current --sphinx-theme sphinx_rtd_theme'
           - '--no-indexes --squash-hierarchy --intersphinx ansible7:https://docs.ansible.com/ansible/6/ community.crypto --collection-version 2.0.0'
         python:
-          - '3.11'
+          - '3.12'
         antsibull_core_ref:
           - main
+          - "stable-2"
         antsibull_docs_parser_ref:
           - main
+        antsibull_changelog_ref:
+          - main
         include:
-          - options: '--use-current --use-html-blobs --no-breadcrumbs community.crypto community.docker'
+          - options: '--use-current --use-html-blobs --no-breadcrumbs community.crypto community.docker --extra-conf antsibull_ext_color_scheme=none'
             python: '3.9'
           - options: '--use-current --output-format simplified-rst community.crypto community.docker'
-            python: '3.10'
+            python: '3.11'
 
     steps:
       - name: Check out antsibull-docs
@@ -61,8 +64,15 @@ jobs:
           path: antsibull-docs-parser
           ref: ${{ matrix.antsibull_docs_parser_ref }}
 
+      - name: Check out dependent project antsibull-changelog
+        uses: actions/checkout@v4
+        with:
+          repository: ansible-community/antsibull-changelog
+          path: antsibull-changelog
+          ref: ${{ matrix.antsibull_changelog_ref }}
+
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
 
@@ -137,9 +147,11 @@ jobs:
         working-directory: antsibull-docs
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
-          directory: antsibull-docs
+          working-directory: antsibull-docs
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build-stable:
     name: 'Build stable docsite'
@@ -163,10 +175,16 @@ jobs:
           repository: ansible-community/antsibull-docs-parser
           path: antsibull-docs-parser
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - name: Check out dependent project antsibull-changelog
+        uses: actions/checkout@v4
         with:
-          python-version: '3.11'
+          repository: ansible-community/antsibull-changelog
+          path: antsibull-changelog
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -176,7 +194,7 @@ jobs:
 
       - name: Get hold of deps file
         run: |
-          curl https://raw.githubusercontent.com/ansible-community/ansible-build-data/main/7/ansible-7.0.0.deps --output ansible.deps
+          curl https://raw.githubusercontent.com/ansible-community/ansible-build-data/main/9/ansible-9.0.0.deps --output ansible.deps
         working-directory: antsibull-docs
 
       - name: Build stable docs RST files
@@ -193,9 +211,11 @@ jobs:
         working-directory: antsibull-docs
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
-          directory: antsibull-docs
+          working-directory: antsibull-docs
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build-devel:
     name: 'Build devel docsite'
@@ -219,10 +239,16 @@ jobs:
           repository: ansible-community/antsibull-docs-parser
           path: antsibull-docs-parser
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - name: Check out dependent project antsibull-changelog
+        uses: actions/checkout@v4
         with:
-          python-version: '3.11'
+          repository: ansible-community/antsibull-changelog
+          path: antsibull-changelog
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -232,7 +258,7 @@ jobs:
 
       - name: Get hold of ansible.in file
         run: |
-          curl https://raw.githubusercontent.com/ansible-community/ansible-build-data/main/8/ansible.in --output ansible.in
+          curl https://raw.githubusercontent.com/ansible-community/ansible-build-data/main/10/ansible.in --output ansible.in
         working-directory: antsibull-docs
 
       - name: Build devel docs RST files
@@ -249,6 +275,8 @@ jobs:
         working-directory: antsibull-docs
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
-          directory: antsibull-docs
+          working-directory: antsibull-docs
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

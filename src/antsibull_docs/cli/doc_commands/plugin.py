@@ -25,10 +25,14 @@ from ... import app_context
 from ...augment_docs import augment_docs
 from ...collection_links import CollectionLinks
 from ...docs_parsing import AnsibleCollectionMetadata
-from ...docs_parsing.fqcn import get_fqcn_parts, is_fqcn
+from ...docs_parsing.fqcn import get_fqcn_parts
 from ...jinja2 import FilenameGenerator, OutputFormat
 from ...jinja2.environment import doc_environment
 from ...process_docs import normalize_plugin_info
+from ...schemas.app_context import (
+    DEFAULT_COLLECTION_INSTALL_CMD,
+    DEFAULT_COLLECTION_URL_TRANSFORM,
+)
 from ...utils.collection_name_transformer import CollectionNameTransformer
 from ...write_docs.plugins import write_plugin_rst
 
@@ -52,16 +56,21 @@ def generate_plugin_docs(
 
     app_ctx = app_context.app_ctx.get()
 
+    if app_ctx.use_html_blobs:
+        print(
+            "WARNING: the use of --use-html-blobs is deprecated."
+            " This feature will be removed soon.",
+            file=sys.stderr,
+        )
+
     venv = FakeVenvRunner()
-    venv_ansible_doc = venv.get_command("ansible-doc")
-    venv_ansible_doc = venv_ansible_doc.bake("-vvv")
     try:
         ansible_doc_results = venv.log_run(
             ["ansible-doc", "-vvv", "-t", plugin_type, "--json", plugin_name]
         )
     except CalledProcessError as exc:
         err_msg = []
-        formatted_exception = traceback.format_exception(None, exc, exc.__traceback__)
+        formatted_exception = traceback.format_exception(exc)
         err_msg.append(
             f"Exception while parsing documentation for {plugin_type} plugin:"
             f" {plugin_name}.  Will not document this plugin."
@@ -111,11 +120,11 @@ def generate_plugin_docs(
 
     # Setup the jinja environment
     collection_url = CollectionNameTransformer(
-        app_ctx.collection_url, "https://galaxy.ansible.com/{namespace}/{name}"
+        app_ctx.collection_url, DEFAULT_COLLECTION_URL_TRANSFORM
     )
     collection_install = CollectionNameTransformer(
         app_ctx.collection_install,
-        "ansible-galaxy collection install {namespace}.{name}",
+        DEFAULT_COLLECTION_INSTALL_CMD,
     )
     env = doc_environment(
         collection_url=collection_url,
@@ -165,13 +174,6 @@ def generate_docs() -> int:
     plugin_type: str = app_ctx.extra["plugin_type"]
     plugin_name: str = app_ctx.extra["plugin"][0]
     output_format = OutputFormat.parse(app_ctx.extra["output_format"])
-
-    if not is_fqcn(plugin_name):
-        raise NotImplementedError(
-            "Priority to implement subcommands is stable, devel, plugin, and"
-            " then collection commands. Only the FQCN form is implemented"
-            " for the plugin subcommand right now."
-        )
 
     output_path = os.path.join(
         app_ctx.extra["dest_dir"], f"{plugin_name}_{plugin_type}.rst"

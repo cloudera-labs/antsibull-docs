@@ -18,14 +18,14 @@
 
 .. Anchors
 
-.. _ansible_collections.@{plugin_name}@_@{plugin_type}@:
+.. _@{ rst_plugin_ref(plugin_name, plugin_type) }@:
 
 .. Title
 
 {% set title = plugin_name ~ ' ' ~ plugin_type -%}
 
 @{ title }@
-@{ '+' * title|length }@
+@{ '+' * title|column_width }@
 
 
 The documentation for the @{ plugin_type }@ plugin, @{ plugin_name }@,  was malformed.

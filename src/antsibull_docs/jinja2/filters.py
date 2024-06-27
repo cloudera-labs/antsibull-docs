@@ -14,6 +14,7 @@ import typing as t
 from collections.abc import Mapping, Sequence
 
 from antsibull_core.logging import log
+from docutils.utils import column_width as _column_width  # pyre-ignore[21]
 from jinja2.runtime import Context, Undefined
 from jinja2.utils import pass_context
 
@@ -238,3 +239,20 @@ def suboption_depth(
         if subdata and isinstance(subdata, Mapping):
             subdepth = max(subdepth, suboption_depth(subdata.items(), subkey))
     return subdepth + 1
+
+
+def rst_format(fmt: str, for_sphinx: bool = False) -> str:
+    if fmt == "ini":
+        return "ini"
+    if fmt == "toml":
+        return "toml"
+    if fmt == "yaml":
+        return "yaml+jinja" if for_sphinx else "yaml"
+    if fmt == "json":
+        return "json"
+    # Unknown format: no syntax highlighting
+    return "text"
+
+
+def column_width(string: str) -> int:
+    return _column_width(string)

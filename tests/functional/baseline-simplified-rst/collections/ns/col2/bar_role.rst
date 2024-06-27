@@ -4,7 +4,10 @@
 ns.col2.bar role -- Bar role
 ++++++++++++++++++++++++++++
 
-This role is part of the `ns.col2 collection <https://galaxy.ansible.com/ns/col2>`_ (version 0.0.1).
+This role is part of the `ns.col2 collection <https://galaxy.ansible.com/ui/repo/published/ns/col2/>`_ (version 0.0.1).
+
+It is not included in ``ansible-core``.
+To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
 To install it use: :code:`ansible-galaxy collection install ns.col2`.
 
@@ -15,8 +18,8 @@ To use it in a playbook, specify: :code:`ns.col2.bar`.
    :depth: 2
 
 
-Entry point ``baz`` -- Bar role, baz entrypoint
------------------------------------------------
+Entry point ``baz`` -- Bar role, baz entrypoint テストロール
+------------------------------------------------------------
 
 
 
@@ -28,6 +31,14 @@ Synopsis
 
 
 
+
+
+Examples
+--------
+
+.. code-block:: yaml
+
+    An example.
 
 
 
@@ -55,6 +66,10 @@ See Also
 * \ `ns2.col.foobarbaz <foobarbaz_module.rst>`__\ 
 
   The official documentation on the **ns2.col.foobarbaz** module.
+* \ `ns2.col.foo <foo_lookup.rst>`__\  lookup plugin
+
+  The official documentation on the **ns2.col.foo** lookup plugin.
+
 
 Authors
 ^^^^^^^

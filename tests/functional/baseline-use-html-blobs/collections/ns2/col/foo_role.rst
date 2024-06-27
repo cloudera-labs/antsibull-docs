@@ -22,7 +22,10 @@ ns2.col.foo role -- Foo role
 .. Collection note
 
 .. note::
-    This role is part of the `ns2.col collection <https://galaxy.ansible.com/ns2/col>`_ (version 2.1.0).
+    This role is part of the `ns2.col collection <https://galaxy.ansible.com/ui/repo/published/ns2/col/>`_ (version 2.1.0).
+
+    It is not included in ``ansible-core``.
+    To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
     To install it use: :code:`ansible-galaxy collection install ns2.col`.
 
@@ -142,7 +145,7 @@ Attributes
         <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="attribute-check_mode"></div>
 
-      .. _ansible_collections.ns2.col.foo_role__attribute-check_mode:
+      .. _ansible_collections.ns2.col.foo_role__attribute-main__check_mode:
 
       .. rst-class:: ansible-option-title
 
@@ -184,7 +187,7 @@ Attributes
         <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="attribute-platform"></div>
 
-      .. _ansible_collections.ns2.col.foo_role__attribute-platform:
+      .. _ansible_collections.ns2.col.foo_role__attribute-main__platform:
 
       .. rst-class:: ansible-option-title
 
@@ -234,6 +237,18 @@ See Also
 
    \ :ref:`ns2.col.foo <ansible_collections.ns2.col.foo_module>`\ 
        The official documentation on the **ns2.col.foo** module.
+
+Examples
+--------
+
+.. code-block:: yaml+jinja
+
+    - name: Use role
+      include_role: ns2.col.foo
+      vars:
+        foo_param_1: foobar
+        foo_param_2: 23
+
 
 Authors
 ^^^^^^^

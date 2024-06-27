@@ -18,19 +18,19 @@
 {% endif -%}
 
 @{ title }@
-@{ '+' * title|length }@
+@{ '+' * title|column_width }@
 
 {% if collection == 'ansible.builtin' -%}
 This role is part of ``ansible-core`` and included in all Ansible
 installations.
 {% else %}
 This role is part of the `@{collection}@ collection <@{ collection | collection_url }@>`_{% if collection_version %} (version @{ collection_version }@){% endif %}.
-{%   if for_official_docsite %}
 
+{%   if for_official_docsite %}
 You might already have this collection installed if you are using the ``ansible`` package.
+{%   endif %}
 It is not included in ``ansible-core``.
 To check whether it is installed, run :code:`ansible-galaxy collection list`.
-{%   endif %}
 
 To install it use: @{ collection | collection_install | rst_code }@.
 
@@ -50,7 +50,7 @@ To use it in a playbook, specify: :code:`@{plugin_name}@`.
 {%   endif -%}
 
 @{ title }@
-@{ '-' * title|length }@
+@{ '-' * title|column_width }@
 
 {%   if ep_doc['version_added'] is still_relevant(collection=collection) -%}
 New in @{ version_added_rst(ep_doc['version_added'], collection) }@
@@ -93,7 +93,7 @@ The below requirements are needed on the remote host and/or the local controller
 Parameters
 ^^^^^^^^^^
 
-@{     parameters_html(ep_doc['options'] | dictsort, suboption_key='options', parameter_html_prefix=entry_point ~ '--', parameter_rst_prefix=entry_point ~ '__', role_entrypoint=entry_point) }@
+@{     parameters_html(ep_doc['options'] | dictsort, suboption_key='options', parameter_html_prefix=entry_point ~ '--', role_entrypoint=entry_point) }@
 {%   endif %}
 
 {%   if ep_doc['attributes'] %}
@@ -144,6 +144,16 @@ See Also
   @{ item['description'] | rst_ify(role_entrypoint=entry_point) | indent(2) }@
 {%       endif %}
 {%     endfor %}
+{%   endif %}
+
+{%   if ep_doc['examples'] -%}
+Examples
+--------
+
+.. code-block:: @{ ep_doc['examples_format'] | rst_format }@
+
+@{     ep_doc['examples'] | indent(4, True) }@
+
 {%   endif %}
 
 {%   if ep_doc['author'] -%}

@@ -216,6 +216,7 @@
                         "version_added_collection": ""
                     }
                 },
+                "plugin_name": "",
                 "requirements": [],
                 "seealso": [],
                 "short_description": "POSIX shell (/bin/sh)",
@@ -223,6 +224,7 @@
                 "version_added": "historical",
                 "version_added_collection": "foo.bar"
             },
+            "examples_format": "yaml",
             "examples": "",
             "metadata": {
                 "status": [

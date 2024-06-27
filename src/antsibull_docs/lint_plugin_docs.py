@@ -505,7 +505,7 @@ class _MarkupValidator:
                 self._validate_plugin_fqcn(None, entry["module"], "module", entry_key)
             if "plugin" in entry and "plugin_type" in entry:
                 self._validate_plugin_fqcn(
-                    None, entry["plugin"], entry["plugin_type"], key
+                    None, entry["plugin"], entry["plugin_type"], entry_key
                 )
 
     def __init__(
@@ -688,11 +688,11 @@ def _lint_collection_plugin_docs(
         get_ansible_plugin_info(
             venv,
             collections_dir,
-            collection_names=[collection_name]
-            if validate_collections_refs == "self"
-            else collections
-            if validate_collections_refs == "dependent"
-            else None,
+            collection_names=(
+                [collection_name]
+                if validate_collections_refs == "self"
+                else collections if validate_collections_refs == "dependent" else None
+            ),
             fetch_all_installed=validate_collections_refs == "all",
         )
     )

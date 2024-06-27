@@ -524,6 +524,34 @@ releases:
     - 166-envvars.yml
     - 2.1.0.yml
     release_date: '2023-06-14'
+  2.10.0:
+    changes:
+      bugfixes:
+      - Fix internal links to options and return values in simplified RST output (https://github.com/ansible-community/antsibull-docs/pull/269).
+      - Include role in role attribute references (https://github.com/ansible-community/antsibull-docs/pull/269).
+      minor_changes:
+      - It is now possible to render the collection changelog as part of the collection
+        docsite by using the ``changelog`` option in ``docs/docsite/config.yml`` (https://github.com/ansible-community/antsibull-docs/issues/31,
+        https://github.com/ansible-community/antsibull-docs/pull/267).
+      release_summary: Bugfix and feature release.
+    fragments:
+    - 2.10.0.yml
+    - 267-changelog.yml
+    - 269-refs.yml
+    release_date: '2024-04-15'
+  2.11.0:
+    changes:
+      bugfixes:
+      - Fix handling of ``choices`` that are dictionaries for ``type=list`` (https://github.com/ansible-community/antsibull-docs/pull/276).
+      - Fix handling of ``default`` for ``type=list`` if ``choices`` is present (https://github.com/ansible-community/antsibull-docs/pull/276).
+      minor_changes:
+      - Support examples for role entrypoints (https://github.com/ansible-community/antsibull-docs/pull/244).
+      release_summary: Feature and bugfix release.
+    fragments:
+    - 2.11.0.yml
+    - 244-role-entrypoint-examples.yml
+    - 276-choices.yml
+    release_date: '2024-05-06'
   2.2.0:
     changes:
       bugfixes:
@@ -605,3 +633,187 @@ releases:
     - 189-css-option-anchors.yml
     - 2.3.1.yml
     release_date: '2023-07-16'
+  2.4.0:
+    changes:
+      bugfixes:
+      - Document and ensure that the ``collection`` subcommand with ``--use-current``
+        can only be used with collection names (https://github.com/ansible-community/antsibull-docs/pull/214).
+      - Fix FQCN detection (https://github.com/ansible-community/antsibull-docs/pull/214).
+      - The ``collection`` subcommand claimed to support paths to directories, which
+        was never supported. Removed the mention of paths from the help, and added
+        validation (https://github.com/ansible-community/antsibull-docs/pull/214).
+      - The ``plugin`` subcommand claimed to support paths to plugin files, which
+        was never supported. Removed the mention of paths from the help (https://github.com/ansible-community/antsibull-docs/pull/214).
+      - When running ``antsibull-docs --help``, the correct program name is now shown
+        for the ``--version`` option (https://github.com/ansible-community/antsibull-docs/pull/209).
+      - When running ``antsibull-docs --version``, the correct version is now shown
+        also for editable installs and other installs that do not allow ``importlib.metadata``
+        to show the correct version (https://github.com/ansible-community/antsibull-docs/pull/209).
+      - When using the ``action_group`` or ``platform`` attributes in a role, a RST
+        symbol was used that was not defined (https://github.com/ansible-community/antsibull-docs/pull/206).
+      deprecated_features:
+      - The ``--use-html-blobs`` feature that inserts HTML blobs for the options and
+        return value tables for the ``ansible-docsite`` output format is deprecated
+        and will be removed soon. The HTML tables cause several features to break,
+        such as references to options and return values. If you think this feature
+        needs to stay, please create an issue in the `antsibull-docs repository <https://github.com/ansible-community/antsibull-docs/issues/>`__
+        and provide good reasons for it (https://github.com/ansible-community/antsibull-docs/pull/217).
+      known_issues:
+      - When using Sphinx builders other than HTML and LaTeX, the indentation for
+        nested options and return values is missing (https://github.com/ansible-community/antsibull-docs/pull/195).
+      minor_changes:
+      - Add basic support for other HTML based Sphinx builders such as ``epub`` and
+        ``singlehtml`` (https://github.com/ansible-community/antsibull-docs/pull/201).
+      - Adjust default RST output to work better with Spinx's LaTeX builder (https://github.com/ansible-community/antsibull-docs/pull/195).
+      - Allow specifying wildcards for the collection names for the ``collections``
+        subcommand if ``--use-current`` is specified (https://github.com/ansible-community/antsibull-docs/pull/219).
+      - Antsibull-docs now depends on antsibull-core >= 2.1.0 (https://github.com/ansible-community/antsibull-docs/pull/209).
+      - Create collection links with a custom directive. This makes them compatible
+        with builders other than the HTML builder (https://github.com/ansible-community/antsibull-docs/pull/200).
+      - Fix indent for nested options and return values with Spinx's LaTeX builder
+        (https://github.com/ansible-community/antsibull-docs/pull/198).
+      - 'Improve linting of option and return value names in semantic markup with
+        respect to array stubs: forbid array stubs for dictionaries if the dictionary
+        is not the last part of the option (https://github.com/ansible-community/antsibull-docs/pull/208).'
+      - Improve the info box for ``ansible.builtin`` plugins and modules to explain
+        FQCN and link to the ``collection`` keyword docs (https://github.com/ansible-community/antsibull-docs/pull/218).
+      - Improve the info box for modules, plugins, and roles in collections to show
+        note that they are not included in ``ansible-core`` and show instructions
+        on how to check whether the collection is installed (https://github.com/ansible-community/antsibull-docs/pull/218).
+      - Insert the antsibull-docs version as a comment or metadata into the generated
+        files (https://github.com/ansible-community/antsibull-docs/pull/205).
+      - Make sure that the antsibull Sphinx extension contains the correct version
+        (same as antsibull-docs itself) and licensing information (GPL-3.0-or-later),
+        and that the version is kept up-to-date for new releases (https://github.com/ansible-community/antsibull-docs/pull/202).
+      - Move roles from templates and structural styling from stylesheet to antsibull
+        Sphinx extension. This makes sure that HTML tags such as ``<strong>`` and
+        ``<em>`` are used for bold and italic texts, and that the same formattings
+        are used for the LaTeX builder (https://github.com/ansible-community/antsibull-docs/pull/199).
+      - Support multiple filters in ``ansible-doc`` of ansible-core 2.16 and later.
+        This makes building docsites and linting more efficient when documentation
+        for more than one and less than all installed collections needs to be queried
+        (https://github.com/ansible-community/antsibull-docs/issues/193, https://github.com/ansible-community/antsibull-docs/pull/213).
+      - The ``current`` subcommand now has a ``--skip-ansible-builtin`` option which
+        skips building documentation for ``ansible.builtin`` (https://github.com/ansible-community/antsibull-docs/pull/215).
+      - Use same colors for LaTeX builder's output as for HTML builder's output (https://github.com/ansible-community/antsibull-docs/pull/199).
+      release_summary: 'Bugfix and feature release. Improves support for other builders
+        than ``html``.
+
+
+        There will be a follow-up release after `Ansible Galaxy <https://galaxy.ansible.com/>`__
+
+        switched to the new ``galaxy_ng`` codebase, which is scheduled for September
+        30th.
+
+        That release will only adjust the URLs to Galaxy, except potentially bugfixes.
+
+        '
+    fragments:
+    - 195-latex.yml
+    - 195-problems.yml
+    - 198-latex-indent.yml
+    - 199-roles-directives.yml
+    - 2.4.0.yml
+    - 200-collection-links.yml
+    - 201-builders.yml
+    - 202-sphinx-version.yml
+    - 205-version.yml
+    - 206-role-attributes.yml
+    - 208-linting-array-stubs.yml
+    - 209-version.yml
+    - 213-ansible-doc-filters.yml
+    - 214-plugin-collection.yml
+    - 215-current-skip-ansible-builtin.yml
+    - 217-deprecate-use-html-blobs.yml
+    - 218-bulitin-info.yml
+    - 219-collection-wildcards.yml
+    release_date: '2023-09-27'
+  2.5.0:
+    changes:
+      minor_changes:
+      - The default collection URL template has been changed from ``https://galaxy.ansible.com/{namespace}/{name}``
+        to ``https://galaxy.ansible.com/ui/repo/published/{namespace}/{name}/`` to
+        adjust for the Galaxy codebase change on September 30th, 2023 (https://github.com/ansible-community/antsibull-docs/issues/147,
+        https://github.com/ansible-community/antsibull-docs/pull/220).
+      release_summary: Release to support the updated Ansible Galaxy codebase.
+    fragments:
+    - 2.5.0.yml
+    - 220-collection_url-template.yml
+    release_date: '2023-09-30'
+  2.6.0:
+    changes:
+      bugfixes:
+      - 'When ``EXAMPLES`` has the format specified by ``# fmt: <format>``, this value
+        is used to determine the code block type (https://github.com/ansible-community/antsibull-docs/pull/225).'
+      minor_changes:
+      - Improve error messages when calls to ``ansible-doc`` fail (https://github.com/ansible-community/antsibull-docs/pull/223).
+      release_summary: Fix parsing of ``EXAMPLES`` and improve error message
+    fragments:
+    - 2.6.0.yml
+    - 223-ansible-doc-errors.yml
+    - 225-examples-format.yml
+    release_date: '2023-12-09'
+  2.6.1:
+    changes:
+      bugfixes:
+      - For role argument specs, allow ``author``, ``description``, and ``todo`` to
+        be a string instead of a list of strings, similarly as with ansible-doc and
+        with modules and plugins (https://github.com/ansible-community/antsibull-docs/pull/227).
+      - Make sure that title underlines have the correct width for wide Unicode characters
+        (https://github.com/ansible-community/antsibull-docs/issues/228, https://github.com/ansible-community/antsibull-docs/pull/229).
+      release_summary: Bugfix release.
+    fragments:
+    - 2.6.1.yml
+    - 227-role-argspec-str-to-list.yml
+    - 229-title-width.yml
+    release_date: '2023-12-17'
+  2.7.0:
+    changes:
+      bugfixes:
+      - Fix schema for ``seealso`` in role entrypoints. Plugin references now work
+        (https://github.com/ansible-community/antsibull-docs/issues/237, https://github.com/ansible-community/antsibull-docs/pull/240).
+      - Make error reporting for invalid references in ``plugin`` ``seealso`` entries
+        more precise (https://github.com/ansible-community/antsibull-docs/pull/240).
+      - Support new ``ansible-doc --json`` output field ``plugin_name`` (https://github.com/ansible-community/antsibull-docs/pull/242).
+      - Use certain fields from library context instead of app context that are deprecated
+        in the app context and will be removed from antsibull-core 3.0.0 (https://github.com/ansible-community/antsibull-docs/pull/233).
+      minor_changes:
+      - Explicitly set up Galaxy context instead of relying on deprecated functionality
+        (https://github.com/ansible-community/antsibull-docs/pull/234).
+      release_summary: Bugfix and refactoring release.
+    fragments:
+    - 2.7.0.yml
+    - 233-context.yml
+    - 234-galaxy-context.yml
+    - 240-roles-seealso.yml
+    - 242-plugin_name-schema.yml
+    release_date: '2024-01-31'
+  2.8.0:
+    changes:
+      bugfixes:
+      - Fix duplicate docs detection (for aliases) for latest ansible-core devel (https://github.com/ansible-community/antsibull-docs/pull/257).
+      minor_changes:
+      - Add support for "dark mode" to the option table styling (https://github.com/ansible-community/antsibull-docs/pull/253,
+        https://github.com/ansible-community/antsibull-docs/pull/258).
+      - Add support for the latest antsibull-core v3 pre-release, ``3.0.0a1`` (https://github.com/ansible-community/antsibull-docs/pull/250).
+      - Declare support for Python 3.12 (https://github.com/ansible-community/antsibull-docs/pull/255).
+      - The colors used by the CSS provided by the Antsibull Sphinx extension can
+        now be overridden (https://github.com/ansible-community/antsibull-docs/pull/254).
+      release_summary: Bugfix and feature release.
+    fragments:
+    - 2.8.0.yml
+    - 250-core-3.0.0a1.yaml
+    - 253-darkmode-support-to-option-tables.yaml
+    - 254-theme-colors.yml
+    - 255-python-3.12.yml
+    - 257-duplicates.yml
+    release_date: '2024-03-12'
+  2.9.0:
+    changes:
+      minor_changes:
+      - Add support for the antsibull-core v3 (https://github.com/ansible-community/antsibull-docs/pull/261).
+      release_summary: Maintenance release.
+    fragments:
+    - 2.9.0.yml
+    - core-v3.yml
+    release_date: '2024-03-17'

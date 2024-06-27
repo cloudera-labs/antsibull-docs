@@ -17,7 +17,7 @@ import asyncio_pool  # type: ignore[import]
 from antsibull_core.ansible_core import get_ansible_core
 from antsibull_core.collections import install_together
 from antsibull_core.dependency_files import parse_pieces_file
-from antsibull_core.galaxy import CollectionDownloader, DownloadResults
+from antsibull_core.galaxy import CollectionDownloader, DownloadResults, GalaxyContext
 from antsibull_core.logging import log
 from antsibull_core.venv import FakeVenvRunner, VenvRunner
 
@@ -59,6 +59,7 @@ async def retrieve(
 
     lib_ctx = app_context.lib_ctx.get()
     async with aiohttp.ClientSession() as aio_session:
+        context = await GalaxyContext.create(aio_session, galaxy_server=galaxy_server)
         async with asyncio_pool.AioPool(size=lib_ctx.thread_max) as pool:
             if not use_installed_ansible_core:
                 requestors["_ansible_core"] = await pool.spawn(
@@ -73,7 +74,7 @@ async def retrieve(
             downloader = CollectionDownloader(
                 aio_session,
                 collection_dir,
-                galaxy_server=galaxy_server,
+                context=context,
                 collection_cache=collection_cache,
             )
             for collection in collections:
@@ -107,6 +108,8 @@ def generate_docs() -> int:
     flog.notice("Begin generating docs")
 
     app_ctx = app_context.app_ctx.get()
+    lib_ctx = app_context.lib_ctx.get()
+
     use_installed_ansible_core: bool = app_ctx.extra["use_installed_ansible_core"]
 
     # Parse the pieces file
@@ -121,9 +124,9 @@ def generate_docs() -> int:
             retrieve(
                 collections,
                 tmp_dir,
-                galaxy_server=app_ctx.galaxy_url,
+                galaxy_server=str(lib_ctx.galaxy_url),
                 ansible_core_source=app_ctx.extra["ansible_core_source"],
-                collection_cache=app_ctx.collection_cache,
+                collection_cache=lib_ctx.collection_cache,
                 use_installed_ansible_core=use_installed_ansible_core,
             )
         )

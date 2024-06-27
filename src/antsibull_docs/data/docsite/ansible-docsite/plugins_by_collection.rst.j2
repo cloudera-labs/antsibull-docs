@@ -32,8 +32,8 @@
 
 .. _plugins_in_@{collection_name}@:
 
-@{collection_name}@
-@{ '=' * (collection_name | length) }@
+@{collection_name.title()}@
+@{ '=' * (collection_name | column_width) }@
 
 {% if collection_version %}
 Collection version @{ collection_version }@
@@ -103,9 +103,19 @@ Communication
 .. toctree::
     :maxdepth: 1
 
+{% if has_changelog %}
+Changelog
+---------
+
+.. toctree::
+    :maxdepth: 1
+
+    changelog
+
+{% endif %}
 {% for section in extra_docs_sections %}
 @{section.title}@
-@{ '-' * (section.title | length) }@
+@{ '-' * (section.title | column_width) }@
 
 {%   if section.toctree %}
 .. toctree::
@@ -121,7 +131,6 @@ Communication
 {%   endif %}
 
 {% endfor %}
-
 Plugin Index
 ------------
 
@@ -138,7 +147,7 @@ Modules
 ~~~~~~~
 {%   else %}
 @{ category | capitalize }@ Plugins
-@{ '~' * ((category | length) + 8) }@
+@{ '~' * ((category | column_width) + 8) }@
 {%   endif %}
 
 @{   list_plugins(category) }@

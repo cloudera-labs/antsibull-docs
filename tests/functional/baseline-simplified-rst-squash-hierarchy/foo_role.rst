@@ -4,7 +4,10 @@
 ns2.col.foo role -- Foo role
 ++++++++++++++++++++++++++++
 
-This role is part of the `ns2.col collection <https://galaxy.ansible.com/ns2/col>`_ (version 2.1.0).
+This role is part of the `ns2.col collection <https://galaxy.ansible.com/ui/repo/published/ns2/col/>`_ (version 2.1.0).
+
+It is not included in ``ansible-core``.
+To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
 To install it use: :code:`ansible-galaxy collection install ns2.col`.
 
@@ -36,7 +39,7 @@ Synopsis
 ^^^^^^^^
 
 - This is the foo role.
-- If you set \ :literal:`foo\_param\_1` (`link <parameter-main__foo_param_1_>`_)\  while \ :literal:`foo\_param\_2=3` (`link <parameter-main__foo_param_2_>`_)\ , this might behave funny.
+- If you set \ :literal:`foo\_param\_1` (`link <#parameter-main--foo_param_1>`_)\  while \ :literal:`foo\_param\_2=3` (`link <#parameter-main--foo_param_2>`_)\ , this might behave funny.
 
 
 Parameters
@@ -99,7 +102,7 @@ Attributes
     - Support
     - Description
 
-  * - .. _ansible_collections.ns2.col.foo_role__attribute-check_mode:
+  * - .. _ansible_collections.ns2.col.foo_role__attribute-main__check_mode:
 
       **check_mode**
 
@@ -112,7 +115,7 @@ Attributes
 
 
 
-  * - .. _ansible_collections.ns2.col.foo_role__attribute-platform:
+  * - .. _ansible_collections.ns2.col.foo_role__attribute-main__platform:
 
       **platform**
 
@@ -132,6 +135,18 @@ See Also
 * \ `ns2.col.foo <foo_module.rst>`__\ 
 
   The official documentation on the **ns2.col.foo** module.
+
+Examples
+--------
+
+.. code-block:: yaml
+
+    - name: Use role
+      include_role: ns2.col.foo
+      vars:
+        foo_param_1: foobar
+        foo_param_2: 23
+
 
 Authors
 ^^^^^^^

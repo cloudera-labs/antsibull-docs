@@ -25,7 +25,7 @@
 
 .. Anchors
 
-.. _ansible_collections.@{plugin_name}@_@{plugin_type}@:
+.. _@{ rst_plugin_ref(plugin_name, plugin_type) }@:
 
 .. Title
 
@@ -36,7 +36,7 @@
 {% endif -%}
 
 @{ title }@
-@{ '+' * title|length }@
+@{ '+' * title|column_width }@
 
 .. Collection note
 
@@ -47,12 +47,12 @@
 {% else %}
 .. note::
     This role is part of the `@{collection}@ collection <@{ collection | collection_url }@>`_{% if collection_version %} (version @{ collection_version }@){% endif %}.
-{%   if for_official_docsite %}
 
+{%   if for_official_docsite %}
     You might already have this collection installed if you are using the ``ansible`` package.
+{%   endif %}
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
-{%   endif %}
 
     To install it use: @{ collection | collection_install | rst_code }@.
 
@@ -74,7 +74,7 @@
 {%   endif -%}
 
 @{ title }@
-@{ '-' * title|length }@
+@{ '-' * title|column_width }@
 
 .. version_added
 
@@ -130,9 +130,9 @@ Parameters
 ^^^^^^^^^^
 
 {%     if use_html_blobs %}
-@{       parameters_html(ep_doc['options'] | dictsort, suboption_key='options', parameter_html_prefix=entry_point ~ '--', parameter_rst_prefix=entry_point ~ '__', role_entrypoint=entry_point) }@
+@{       parameters_html(ep_doc['options'] | dictsort, suboption_key='options', parameter_html_prefix=entry_point ~ '--', role_entrypoint=entry_point) }@
 {%     else %}
-@{       parameters_rst(ep_doc['options'] | dictsort, suboption_key='options', parameter_html_prefix=entry_point ~ '--', parameter_rst_prefix=entry_point ~ '__', role_entrypoint=entry_point) }@
+@{       parameters_rst(ep_doc['options'] | dictsort, suboption_key='options', parameter_html_prefix=entry_point ~ '--', role_entrypoint=entry_point) }@
 {%     endif %}
 {%   endif %}
 
@@ -143,7 +143,7 @@ Parameters
 Attributes
 ----------
 
-@{     attributes_rst(ep_doc['attributes'], role_entrypoint=entry_point) }@
+@{     attributes_rst(ep_doc['attributes'], attribute_html_prefix=entry_point ~ '--', role_entrypoint=entry_point) }@
 {%   endif %}
 
 .. Notes
@@ -187,6 +187,16 @@ See Also
        @{ item['description'] | rst_ify(role_entrypoint=entry_point) | indent(7) }@
 {%       endif %}
 {%     endfor %}
+{%   endif %}
+
+{%   if ep_doc['examples'] -%}
+Examples
+--------
+
+.. code-block:: @{ ep_doc['examples_format'] | rst_format(for_sphinx=true) }@
+
+@{     ep_doc['examples'] | indent(4, True) }@
+
 {%   endif %}
 
 {%   if ep_doc['author'] -%}

@@ -103,6 +103,7 @@
                         "version_added_collection": "foo.bar"
                     }
                 },
+                "plugin_name": "",
                 "requirements": [
                     "whitelist in configuration"
                 ],
@@ -112,7 +113,8 @@
                 "version_added": "2.4",
                 "version_added_collection": "foo.bar"
             },
-            "examples": "",
+            "examples_format": "ini",
+            "examples": " # fmt: ini\n[foo]\nbar = bam",
             "metadata": {
                 "status": [
                     "preview"

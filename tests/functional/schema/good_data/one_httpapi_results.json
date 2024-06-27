@@ -45,6 +45,7 @@
                         "version_added_collection": ""
                     }
                 },
+                "plugin_name": "",
                 "requirements": [],
                 "seealso": [],
                 "short_description": "HttpApi Plugin for devices supporting Restconf API",
@@ -52,6 +53,7 @@
                 "version_added": "historical",
                 "version_added_collection": ""
             },
+            "examples_format": "yaml",
             "examples": "",
             "metadata": {
                 "status": [

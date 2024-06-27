@@ -24,7 +24,10 @@ ns2.col.foo shell -- Foo shell \ :ansopt:`ns2.col.foo#shell:bar`\
 .. Collection note
 
 .. note::
-    This shell plugin is part of the `ns2.col collection <https://galaxy.ansible.com/ns2/col>`_ (version 2.1.0).
+    This shell plugin is part of the `ns2.col collection <https://galaxy.ansible.com/ui/repo/published/ns2/col/>`_ (version 2.1.0).
+
+    It is not included in ``ansible-core``.
+    To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
     To install it, use: :code:`ansible-galaxy collection install ns2.col`.
 

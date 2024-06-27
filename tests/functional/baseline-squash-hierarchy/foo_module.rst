@@ -24,7 +24,10 @@ ns2.col.foo module -- Do some foo \ :ansopt:`ns2.col.foo#module:bar`\
 .. Collection note
 
 .. note::
-    This module is part of the `ns2.col collection <https://galaxy.ansible.com/ns2/col>`_ (version 2.1.0).
+    This module is part of the `ns2.col collection <https://galaxy.ansible.com/ui/repo/published/ns2/col/>`_ (version 2.1.0).
+
+    It is not included in ``ansible-core``.
+    To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
     To install it, use: :code:`ansible-galaxy collection install ns2.col`.
     You need further requirements to be able to use this module,
@@ -161,6 +164,103 @@ Parameters
 
       The foo source.
 
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-manager"></div>
+
+      .. _ansible_collections.ns2.col.foo_module__parameter-manager:
+
+      .. rst-class:: ansible-option-title
+
+      **manager**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-manager" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`list` / :ansible-option-elements:`elements=string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The package manager(s) used by the system so we can query the package information. This is a list and can support multiple package managers per system, since version 2.8.
+
+      The 'portage' and 'pkg' options were added in version 2.8.
+
+      The 'apk' option was added in version 2.11.
+
+      The 'pkg\_info' option was added in version 2.13.
+
+      Aliases were added in 2.18, to support using \ :literal:`auto={{ansible\_facts['pkg\_mgr']}}`\ 
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"apk"`\ :
+        Alpine Linux package manager
+
+      - :ansible-option-choices-entry:`"apt"`\ :
+        For DEB based distros, \ :literal:`python-apt`\  package must be installed on targeted hosts
+
+      - :ansible-option-choices-entry-default:`"auto"` :ansible-option-choices-default-mark:`(default)`\ :
+        Depending on \ :ansopt:`strategy`\ , will match the first or all package managers provided, in order
+
+      - :ansible-option-choices-entry:`"dnf"`\ :
+        Alias to rpm
+
+      - :ansible-option-choices-entry:`"dnf5"`\ :
+        Alias to rpm
+
+      - :ansible-option-choices-entry:`"openbsd\_pkg"`\ :
+        Alias to pkg\_info
+
+      - :ansible-option-choices-entry:`"pacman"`\ :
+        Archlinux package manager/builder
+
+      - :ansible-option-choices-entry:`"pkg"`\ :
+        libpkg front end (FreeBSD)
+
+      - :ansible-option-choices-entry:`"pkg5"`\ :
+        Alias to pkg
+
+      - :ansible-option-choices-entry:`"pkg\_info"`\ :
+        OpenBSD package manager
+
+      - :ansible-option-choices-entry:`"pkgng"`\ :
+        Alias to pkg
+
+      - :ansible-option-choices-entry:`"portage"`\ :
+        Handles ebuild packages, it requires the \ :literal:`qlist`\  utility, which is part of 'app-portage/portage-utils'
+
+      - :ansible-option-choices-entry:`"rpm"`\ :
+        For RPM based distros, requires RPM Python bindings, not installed by default on Suse (python3-rpm)
+
+      - :ansible-option-choices-entry:`"yum"`\ :
+        Alias to rpm
+
+      - :ansible-option-choices-entry:`"zypper"`\ :
+        Alias to rpm
+
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-default-bold:`Default:` :ansible-option-default:`["auto"]`
 
       .. raw:: html
 

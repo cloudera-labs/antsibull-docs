@@ -24,7 +24,7 @@ from ..docs_parsing import AnsibleCollectionMetadata
 from ..jinja2 import FilenameGenerator, OutputFormat
 from ..jinja2.environment import doc_environment, get_template_filename
 from ..utils.collection_name_transformer import CollectionNameTransformer
-from . import CollectionInfoT, PluginErrorsT, _render_template
+from . import CollectionInfoT, PluginErrorsT, _get_collection_dir, _render_template
 
 mlog = log.fields(mod=__name__)
 
@@ -108,11 +108,13 @@ def guess_relative_filename(
         if plugin_type == "module" and collection_name == "ansible.builtin"
         else
         # Modules in collections:
-        "plugins/modules"
-        if plugin_type == "module"
-        else
-        # Plugins in ansible-core or collections:
-        "plugins/" + plugin_type
+        (
+            "plugins/modules"
+            if plugin_type == "module"
+            else
+            # Plugins in ansible-core or collections:
+            "plugins/" + plugin_type
+        )
     )
     # Guess path inside collection tree
     return f"{plugin_dir}/{plugin_short_name}.py"
@@ -236,6 +238,7 @@ def create_plugin_rst(
                 plugin_name=plugin_name,
                 doc=plugin_record["doc"],
                 examples=plugin_record["examples"],
+                examples_format=plugin_record["examples_format"],
                 returndocs=plugin_record["return"],
                 nonfatal_errors=nonfatal_errors,
                 edit_on_github_url=edit_on_github_url,
@@ -314,15 +317,13 @@ async def write_plugin_rst(
     if path_override is not None:
         plugin_file = path_override
     else:
-        if squash_hierarchy:
-            collection_dir = dest_dir
-        else:
-            collection_dir = os.path.join(
-                dest_dir, "collections", namespace, collection
-            )
-            # This is dangerous but the code that takes dest_dir from the user checks
-            # permissions on it to make it as safe as possible.
-            os.makedirs(collection_dir, mode=0o755, exist_ok=True)
+        collection_dir = _get_collection_dir(
+            dest_dir,
+            namespace,
+            collection,
+            squash_hierarchy=squash_hierarchy,
+            create_if_not_exists=True,
+        )
 
         plugin_file = os.path.join(
             collection_dir,

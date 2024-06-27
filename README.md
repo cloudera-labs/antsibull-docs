@@ -5,24 +5,17 @@ SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
 # antsibull-docs -- Ansible Documentation Build Scripts
+[![Discuss on Matrix at #antsibull:ansible.com](https://img.shields.io/matrix/antsibull:ansible.com.svg?server_fqdn=ansible-accounts.ems.host&label=Discuss%20on%20Matrix%20at%20%23antsibull:ansible.com&logo=matrix)](https://matrix.to/#/#antsibull:ansible.com)
 [![Discuss on Matrix at #docs:ansible.com](https://img.shields.io/matrix/docs:ansible.com.svg?server_fqdn=ansible-accounts.ems.host&label=Discuss%20on%20Matrix%20at%20%23docs:ansible.com&logo=matrix)](https://matrix.to/#/#docs:ansible.com)
 [![Nox badge](https://github.com/ansible-community/antsibull-docs/actions/workflows/nox.yml/badge.svg)](https://github.com/ansible-community/antsibull-docs/actions/workflows/nox.yml)
 [![Build docs testing badge](https://github.com/ansible-community/antsibull-docs/workflows/antsibull-docs%20tests/badge.svg?event=push&branch=main)](https://github.com/ansible-community/antsibull-docs/actions?query=workflow%3A%22antsibull-docs+tests%22+branch%3Amain)
 [![Build CSS testing badge](https://github.com/ansible-community/antsibull-docs/workflows/Build%20CSS/badge.svg?event=push&branch=main)](https://github.com/ansible-community/antsibull-docs/actions?query=workflow%3A%22Build+CSS%22+branch%3Amain)
 [![Codecov badge](https://img.shields.io/codecov/c/github/ansible-community/antsibull-docs)](https://codecov.io/gh/ansible-community/antsibull-docs)
+[![REUSE status](https://api.reuse.software/badge/github.com/ansible-community/antsibull-docs)](https://api.reuse.software/info/github.com/ansible-community/antsibull-docs)
 
-Tooling for building Ansible documentation.
+Tooling for building Ansible documentation. This is mainly the `antsibull-docs` command and the [Sphinx extension](https://www.sphinx-doc.org/en/master/), ``sphinx_antsibull_ext``. Please check out the [documentation](https://ansible.readthedocs.io/projects/antsibull-docs/) for more information.
 
-Script that is here:
-
-* antsibull-docs - Extracts documentation from ansible plugins
-
-This also includes a [Sphinx extension](https://www.sphinx-doc.org/en/master/) `sphinx_antsibull_ext` which provides a minimal CSS file to render the output of `antsibull-docs` correctly.
-
-You can find a list of changes in [the antsibull-docs changelog](./CHANGELOG.rst).
-
-Unless otherwise noted in the code, it is licensed under the terms of the GNU
-General Public License v3 or, at your option, later.
+You can find a list of changes in [the antsibull-docs changelog](https://github.com/ansible-community/antsibull-docs/blob/main/CHANGELOG.md).
 
 antsibull-docs is covered by the [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html).
 
@@ -35,36 +28,6 @@ The current major version is 2.x.y. Development for 2.x.y occurs on the `main` b
 We explicitly exclude code compatibility. **antsibull-docs is not supposed to be used as a library.** The only exception are potential dependencies with other antsibull projects (currently there are none). If you want to use a certain part of antsibull-docs as a library, please create an issue so we can discuss whether we add a stable interface for **parts** of the Python code. We do not promise that this will actually happen though.
 
 If you are interested in library support for interpreting Ansible markup, please take a look at [the antsibull-docs-parser project](https://github.com/ansible-community/antsibull-docs-parser).
-
-## Using the Sphinx extension
-
-Include it in your Sphinx configuration ``conf.py``::
-
-```
-# Add it to 'extensions':
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'notfound.extension', 'sphinx_antsibull_ext']
-```
-
-## Updating the CSS file for the Sphinx extension
-
-The CSS file [sphinx_antsibull_ext/antsibull-minimal.css](https://github.com/ansible-community/antsibull-docs/blob/main/sphinx_antsibull_ext/antsibull-minimal.css) is built from [sphinx_antsibull_ext/css/antsibull-minimal.scss](https://github.com/ansible-community/antsibull-docs/blob/main/sphinx_antsibull_ext/src/antsibull-minimal.scss) using [SASS](https://sass-lang.com/) and [postcss](https://postcss.org/) using [autoprefixer](https://github.com/postcss/autoprefixer) and [cssnano](https://cssnano.co/).
-
-Use the script `build.sh` in `sphinx_antsibull_ext/css/` to build the `.css` file from the `.scss` file:
-
-```
-cd sphinx_antsibull_ext/css/
-./build-css.sh
-```
-
-For this to work, you need to make sure that `sassc` and `postcss` are on your path and that the autoprefixer and nanocss modules are installed:
-
-```
-# Debian:
-apt-get install sassc
-
-# PostCSS, autoprefixer and cssnano require nodejs/npm:
-npm install -g autoprefixer cssnano postcss postcss-cli
-```
 
 ## Development
 
@@ -100,7 +63,7 @@ To run specific tests:
 
 To create a more complete local development env:
 
-``` console
+```console
 git clone https://github.com/ansible-community/antsibull-core.git
 git clone https://github.com/ansible-community/antsibull-docs-parser.git
 git clone https://github.com/ansible-community/antsibull-docs.git
@@ -110,6 +73,23 @@ python3 -m venv venv
 pip install -e '.[dev]' -e ../antsibull-core -e ../antsibull-docs-parser
 [...]
 nox
+```
+
+## Updating the CSS file for the Sphinx extension
+
+The CSS file [sphinx_antsibull_ext/antsibull-minimal.css](https://github.com/ansible-community/antsibull-docs/blob/main/sphinx_antsibull_ext/antsibull-minimal.css) is built from [sphinx_antsibull_ext/css/antsibull-minimal.scss](https://github.com/ansible-community/antsibull-docs/blob/main/sphinx_antsibull_ext/src/antsibull-minimal.scss) using [SASS](https://sass-lang.com/) and [postcss](https://postcss.org/) using [autoprefixer](https://github.com/postcss/autoprefixer) and [cssnano](https://cssnano.co/).
+
+Use the script `build.sh` in `sphinx_antsibull_ext/css/` to build the `.css` file from the `.scss` file:
+
+```console
+cd sphinx_antsibull_ext/css/
+./build-css.sh
+```
+
+For this to work, you need to install some Node.js dependencies:
+
+```console
+npm clean-install
 ```
 
 ## Creating a new release:
@@ -126,3 +106,13 @@ nox
    * Bumps the version to `<version>.post0`;
    * Adds the changed file to git and run `git commit -m 'Post-release version bump.'`;
 4. Run `git push --follow-tags` to the appropriate remotes and create a GitHub release.
+
+## License
+
+Unless otherwise noted in the code, it is licensed under the terms of the GNU
+General Public License v3 or, at your option, later. See
+[LICENSES/GPL-3.0-or-later.txt](https://github.com/ansible-community/antsibull-docs/tree/main/LICENSE)
+for a copy of the license.
+
+The repository follows the [REUSE Specification](https://reuse.software/spec/) for declaring copyright and
+licensing information. The only exception are changelog fragments in ``changelog/fragments/``.

@@ -13,10 +13,18 @@ from collections.abc import Mapping
 from jinja2 import BaseLoader, Environment, FileSystemLoader, PackageLoader
 
 from ..markup.rstify import rst_code, rst_escape
+from ..rst_labels import (
+    get_attribute_ref,
+    get_option_ref,
+    get_plugin_ref,
+    get_requirements_ref,
+    get_return_value_ref,
+)
 from ..utils.collection_name_transformer import CollectionNameTransformer
 from . import FilenameGenerator, OutputFormat
 from .filters import (
     collection_name,
+    column_width,
     documented_type,
     extract_options_from_list,
     html_ify,
@@ -26,6 +34,7 @@ from .filters import (
     plugin_shortname,
     remove_options_from_list,
     rst_fmt,
+    rst_format,
     rst_xline,
     suboption_depth,
     to_ini_value,
@@ -36,7 +45,7 @@ from .tests import still_relevant, test_list
 
 def reference_plugin_rst(plugin_name: str, plugin_type: str) -> str:
     fqcn = f"{plugin_name}"
-    return f"\\ :ref:`{rst_escape(fqcn)} <ansible_collections.{fqcn}_{plugin_type}>`\\ "
+    return f"\\ :ref:`{rst_escape(fqcn)} <{get_plugin_ref(fqcn, plugin_type)}>`\\ "
 
 
 def reference_plugin_rst_simplified(plugin_name: str, plugin_type: str) -> str:
@@ -137,6 +146,11 @@ def doc_environment(
 
     env.globals["reference_plugin_rst"] = make_reference_plugin_rst(output_format)
     env.globals["referable_envvars"] = referable_envvars
+    env.globals["rst_plugin_ref"] = get_plugin_ref
+    env.globals["rst_requirements_ref"] = get_requirements_ref
+    env.globals["rst_attribute_ref"] = get_attribute_ref
+    env.globals["rst_option_ref"] = get_option_ref
+    env.globals["rst_return_value_ref"] = get_return_value_ref
     env.filters["rst_ify"] = make_rst_ify(output_format)
     env.filters["html_ify"] = html_ify
     env.filters["fmt"] = rst_fmt
@@ -151,8 +165,10 @@ def doc_environment(
     env.filters["antsibull_to_json"] = to_json
     env.filters["antsibull_to_ini_value"] = to_ini_value
     env.filters["collection_name"] = collection_name
+    env.filters["column_width"] = column_width
     env.filters["plugin_shortname"] = plugin_shortname
     env.filters["suboption_depth"] = suboption_depth
+    env.filters["rst_format"] = rst_format
     if collection_url is not None:
         env.filters["collection_url"] = collection_url
     if collection_install is not None:

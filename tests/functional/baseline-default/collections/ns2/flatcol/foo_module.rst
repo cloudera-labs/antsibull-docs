@@ -2,6 +2,7 @@
 .. Document meta
 
 :orphan:
+:github_url: https://github.com/ansible-collections/community.REPO_NAME/edit/main/plugins/modules/foo.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr
 
 .. |antsibull-internal-nbsp| unicode:: 0xA0
     :trim:
@@ -23,7 +24,10 @@ ns2.flatcol.foo module -- Do some foo \ :ansopt:`ns2.flatcol.foo#module:bar`\
 .. Collection note
 
 .. note::
-    This module is part of the `ns2.flatcol collection <https://galaxy.ansible.com/ns2/flatcol>`_.
+    This module is part of the `ns2.flatcol collection <https://galaxy.ansible.com/ui/repo/published/ns2/flatcol/>`_.
+
+    It is not included in ``ansible-core``.
+    To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
     To install it, use: :code:`ansible-galaxy collection install ns2.flatcol`.
 
@@ -368,6 +372,17 @@ Authors
 
 
 .. Extra links
+
+Collection links
+~~~~~~~~~~~~~~~~
+
+.. ansible-links::
+
+  - title: "Report an issue"
+    url: "https://github.com/ansible-collections/community.REPO_NAME/issues/new/choose"
+    external: true
+  - title: Communication
+    ref: communication_for_ns2.flatcol
 
 
 .. Parsing errors
