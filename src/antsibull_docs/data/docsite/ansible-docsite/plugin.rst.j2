@@ -416,14 +416,11 @@ Status
 
 {% endif %}
 
-.. raw:: html
-
-   <hr>
-
 .. Authors
 
 {% if doc['author'] -%}
-.. rubric:: Authors
+Authors
+~~~~~~~
 
 {%   for author_name in doc['author'] %}
 - @{ author_name | massage_author_name }@
@@ -439,7 +436,8 @@ Status
 .. Extra links
 
 {% if collection_links or not collection_communication.empty %}
-.. rubric:: Collection links
+Collection links
+~~~~~~~~~~~~~~~~
 
 @{   add_collection_links(collection_links, collection_communication, collection) -}@
 {% endif %}
