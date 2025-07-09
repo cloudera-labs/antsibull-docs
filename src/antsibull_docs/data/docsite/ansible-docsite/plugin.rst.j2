@@ -420,7 +420,7 @@ Status
 
 {% if doc['author'] -%}
 Authors
-~~~~~~~
+-------
 
 {%   for author_name in doc['author'] %}
 - @{ author_name | massage_author_name }@
@@ -436,8 +436,8 @@ Authors
 .. Extra links
 
 {% if collection_links or not collection_communication.empty %}
-Collection links
-~~~~~~~~~~~~~~~~
+Collection Links
+----------------
 
 @{   add_collection_links(collection_links, collection_communication, collection) -}@
 {% endif %}
